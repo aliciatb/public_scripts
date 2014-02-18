@@ -34,7 +34,7 @@ fullNames = ['Wells Fargo','HD Vest','Home Depot','Calloways Nursery','Texas A&M
             'University of Washington','John Hopkins University','Princeton University','Bachelor of Arts',
             'Masters of Business Administration','google books api','Tableau 8.1 Public','Team Foundation Server',
             'Visual SourceSafe','Visual Studio','Test Driven Development','Pair Programming','Amazon Instant Video',
-            'Kindle Fire','Little Free Library','12th Man']
+            'Kindle Fire','Little Free Library','12th Man','2 week sprints','Finra ADV form 2 Part B']
 
 def calcFrequency(file):
   """
@@ -78,7 +78,9 @@ def scrub(doc):
   cleaned_doc = re.sub(r'\s-\s\d\d\d\d+-\d\d\d\d','',cleaned_doc)     #date range of 4 digit years
   cleaned_doc = re.sub(r'\d\d\d+-\d\d\d+-\d\d\d\d','',cleaned_doc)    #set of 3 numbers & dash (phone)
   cleaned_doc = re.sub(r'\s\d\d\d\d','',cleaned_doc)                  #4 digit year preceded by space
-  cleaned_doc =  re.sub(r'\.\s','',cleaned_doc)                       #period at end of sentence
+  cleaned_doc = re.sub(r'\(\d\d\d\d','',cleaned_doc)                  #4 digit year preceded by escaped parenthesis
+  cleaned_doc = re.sub(r'\d\d\d\d\)','',cleaned_doc)                  #4 digit year followed by escaped parenthesis
+  cleaned_doc =  re.sub(r'\.\s',' ',cleaned_doc)                       #period at end of sentence
   cleaned_doc =  re.sub(r'\s\&\s',' ',cleaned_doc)                    #& (and)
 
   # punctuation
