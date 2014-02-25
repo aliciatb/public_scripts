@@ -1,6 +1,7 @@
 import pprint
 import sys
 import urllib
+from datetime import datetime
 from apiclient.discovery import build
 
 def sampleCall(api_key):
@@ -36,19 +37,60 @@ def sampleCall(api_key):
 		book['volumeInfo']['title'],
 		book['volumeInfo']['authors'])
 
-def lookupAuthor(author, api_key):
-	author_terms = urllib.quote_plus(author)
-	print author_terms
-	service = build('books', 'v1', developerKey=api_key)
-	# book['volumeInfo']['publishedDate']
-	
+def lookupAuthor(api_key, query):
+  # returns an instance of an API service
+  service = build('books', 'v1', developerKey=api_key)
+  
+  # encode the search terms
+  q_terms = urllib.quote_plus(query)
+  
+  # build the request object with parameters
+  request = service.volumes().list(source='public',
+  q='inauthor:' + q_terms,
+  orderBy='newest',
+  maxResults='5',
+  printType='books',
+  projection='full')
+  
+  # make the api call to google books
+  response = request.execute()
 
+#  pprint.pprint(response)
+#  print 'Found %d books:' % len(response['items'])
+  titles = {}
+
+  for book in response.get('items', []):
+    if book['volumeInfo']['language'] == 'en':
+      for a in book['volumeInfo']['authors']:
+        # make sure it's correct author
+        if a == urllib.unquote_plus(q_terms):
+#         print 'Author: %s' % (urllib.quote_plus(a))
+          publishedDate = book['volumeInfo']['publishedDate']
+          publishedDate = datetime.strptime(publishedDate, '%Y-%m-%d')
+          # check to see if date is in the future
+          if publishedDate > datetime.today():
+            titles[book['volumeInfo']['title']] = book['volumeInfo']['publishedDate']
+#           print 'Title: %s, Date: %s, Lang: %s' % (book['volumeInfo']['title'],
+#           book['volumeInfo']['publishedDate'],
+#           book['volumeInfo']['language'])
+
+  return titles
+	
+def addAuthorAlert(author, title, publishedDate):
+  print 'Title: %s, By: %s, Publish Date: %s' % (title, author, publishedDate)	
+	
 def main():
 	"""Get the author to check if there are any upcoming releases"""
 	api_key = sys.argv[1]
-	sample = sampleCall(api_key)
-	# author = sys.argv[2]
-	# results = lookupAuthor(author, api_key)
+	#sample = sampleCall(api_key)
+	author = sys.argv[2]
+	results = lookupAuthor(api_key, author)
+	if len(results) > 0:
+	  for key in results:
+	    #print key, results[key]
+	    addAuthorAlert(author, key, results[key])
+	else:
+	  print 'No upcoming books found for ' + author
 
 if __name__ == '__main__':
 	main()	
