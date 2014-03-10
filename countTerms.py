@@ -30,11 +30,11 @@ stop_words = ['a','about','above','across','after','afterwards','again','against
               'would','yet','you','your','yours','yourself','yourselves']
 
 # retain the full name since they are meaningful
-fullNames = ['Wells Fargo','HD Vest','Home Depot','Calloways Nursery','Texas A&M University','Texas Christian University',
+fullNames = ['Wells Fargo','H.D. Vest Financial Services','Home Depot','Calloways Nursery','Texas A&M University','Texas Christian University',
             'University of Washington','John Hopkins University','Princeton University','Bachelor of Arts',
             'Masters of Business Administration','google books api','Tableau 8.1 Public','Team Foundation Server',
             'Visual SourceSafe','Visual Studio','Test Driven Development','Pair Programming','Amazon Instant Video',
-            'Kindle Fire','Little Free Library','12th Man','2 week sprints','Finra ADV form 2 Part B']
+            'Kindle Fire','Little Free Library','12th Man','2 week sprints','Finra ADV form 2 Part B','Classic ASP']
 
 def calcFrequency(file):
   """
@@ -42,7 +42,7 @@ def calcFrequency(file):
   """
   doc = file.read()
   doc = doc.lower()
-  addMoreStopWords(['alicia','aliciatb@gmail.com','@msaliciabrown','dallas','fall','summer','tx','#8702'])
+  addMoreStopWords(['alicia','alicia3694#','aliciabrown','aliciatb','aliciatb@gmail.com','@msaliciabrown','brown','dallas','fall','summer','tx','#8702'])
   doc = keepLongNamesIntact(doc,fullNames)
   doc = scrub(doc)
   
@@ -58,10 +58,11 @@ def calcFrequency(file):
       else:
         termFrequency[t] = 1
     except:
-      exList.append(tweet)
+      exList.append(t)
   
     f = open(data_file_path + "output.txt", "w")
     for key in sorted(termFrequency.keys()):
+      # print key
       if key not in stop_words:
         # revert fullNames while writing to file
         f.write(key.replace("~"," ") + "\t" + str(termFrequency[key]) + "\n")
@@ -80,12 +81,14 @@ def scrub(doc):
   cleaned_doc = re.sub(r'\s\d\d\d\d','',cleaned_doc)                  #4 digit year preceded by space
   cleaned_doc = re.sub(r'\(\d\d\d\d','',cleaned_doc)                  #4 digit year preceded by escaped parenthesis
   cleaned_doc = re.sub(r'\d\d\d\d\)','',cleaned_doc)                  #4 digit year followed by escaped parenthesis
-  cleaned_doc =  re.sub(r'\.\s',' ',cleaned_doc)                       #period at end of sentence
+  cleaned_doc =  re.sub(r'\.\s',' ',cleaned_doc)                      #period at end of sentence
   cleaned_doc =  re.sub(r'\s\&\s',' ',cleaned_doc)                    #& (and)
+  cleaned_doc =  re.sub(r'/',' ',cleaned_doc)                    	  #/
 
   # punctuation
   cleaned_doc = cleaned_doc.replace(","," ")
   cleaned_doc = cleaned_doc.replace(";"," ")
+  cleaned_doc = cleaned_doc.replace(":"," ")
   cleaned_doc = cleaned_doc.replace("-"," ")
   cleaned_doc = cleaned_doc.replace("_"," ")
   cleaned_doc = cleaned_doc.replace("("," ")
