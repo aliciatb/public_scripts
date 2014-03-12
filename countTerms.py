@@ -1,5 +1,6 @@
 import sys
 import re
+import collections
 
 data_file_path = "../data/"
 
@@ -19,7 +20,7 @@ stop_words = ['a','about','above','across','after','afterwards','again','against
               'mostly','move','much','must','my','myse','name','namely','neither','never','nevertheless','next','nine','no',
               'nobody','none','noone','nor','not','nothing','now','nowhere','of','off','often','on','once','one','only','onto',
               'or','other','others','otherwise','our','ours','ourselves','out','over','own','part','per','perhaps','please',
-              'put','rather','re','same','see','seem','seemed','seeming','seems','serious','several','she','should','show',
+              'put','rather','re','s','same','see','seem','seemed','seeming','seems','serious','several','she','should','show',
               'side','since','sincere','six','sixty','so','some','somehow','someone','something','sometime','sometimes',
               'somewhere','still','such','system','take','ten','than','that','the','their','them','themselves','then','thence',
               'there','thereafter','thereby','therefore','therein','thereupon','these','they','thick','thin','third','this',
@@ -27,14 +28,14 @@ stop_words = ['a','about','above','across','after','afterwards','again','against
               'twelve','twenty','two','un','under','until','up','upon','us','very','via','was','we','well','were','what',
               'whatever','when','whence','whenever','where','whereafter','whereas','whereby','wherein','whereupon','wherever',
               'whether','which','while','whither','who','whoever','whole','whom','whose','why','will','with','within','without',
-              'would','yet','you','your','yours','yourself','yourselves']
+              'would','yet','you','your','yours','yourself','yourselves','nursery']
 
 # retain the full name since they are meaningful
-fullNames = ['Wells Fargo','H.D. Vest Financial Services','Home Depot','Calloways Nursery','Texas A&M University','Texas Christian University',
-            'University of Washington','John Hopkins University','Princeton University','Bachelor of Arts',
+fullNames = ['Wells Fargo','H.D. Vest Financial Services','Home Depot','Calloway\'s Nursery','Nelson Capital',
+            'Texas A&M University','Texas Christian University','University of Washington','John Hopkins University','Princeton University','Bachelor of Arts',
             'Masters of Business Administration','google books api','Tableau 8.1 Public','Team Foundation Server',
             'Visual SourceSafe','Visual Studio','Test Driven Development','Pair Programming','Amazon Instant Video',
-            'Kindle Fire','Little Free Library','12th Man','2 week sprints','Finra ADV form 2 Part B','Classic ASP']
+            'Kindle Fire','Little Free Library','12th man','2 week sprints','Finra ADV form 2 Part B','Classic ASP']
 
 def calcFrequency(file):
   """
@@ -42,7 +43,7 @@ def calcFrequency(file):
   """
   doc = file.read()
   doc = doc.lower()
-  addMoreStopWords(['alicia','alicia3694#','aliciabrown','aliciatb','aliciatb@gmail.com','@msaliciabrown','brown','dallas','fall','summer','tx','#8702'])
+  addMoreStopWords(['alicia','alicia3694#','aliciabrown','aliciatb','aliciatb@gmail.com','msaliciabrown','brown','dallas','fall','summer','tx','#8702','lfl8702'])
   doc = keepLongNamesIntact(doc,fullNames)
   doc = scrub(doc)
   
@@ -60,18 +61,27 @@ def calcFrequency(file):
     except:
       exList.append(t)
   
+    # sort by count desc
+    ordered = collections.OrderedDict(sorted(termFrequency.items(), key=lambda t: t[1]))
+#     for key in ordered.keys():
+#       print key, ': ', ordered[key] 
     f = open(data_file_path + "output.txt", "w")
     for key in sorted(termFrequency.keys()):
-      # print key
+#    for key in reversed(ordered.keys()):
       if key not in stop_words:
         # revert fullNames while writing to file
-        f.write(key.replace("~"," ") + "\t" + str(termFrequency[key]) + "\n")
-        # print key, float(termFrequency[key])
+        if key == 'calloway':
+          # hack because reg ex is not handling single quote
+          f.write('calloway\'s nursery' + "\t" + str(termFrequency[key]) + "\n")
+        else:
+          f.write(key.replace("~"," ") + "\t" + str(termFrequency[key]) + "\n")
+      # print key, float(termFrequency[key])
     f.close()
       
 def scrub(doc):
   """
   remove non-words like date ranges, punctuation, asterisks
+  todo: retain single quote in Calloway's Nursery properly (regex)
   """
   cleaned_doc = doc
   
@@ -82,20 +92,9 @@ def scrub(doc):
   cleaned_doc = re.sub(r'\(\d\d\d\d','',cleaned_doc)                  #4 digit year preceded by escaped parenthesis
   cleaned_doc = re.sub(r'\d\d\d\d\)','',cleaned_doc)                  #4 digit year followed by escaped parenthesis
   cleaned_doc =  re.sub(r'\.\s',' ',cleaned_doc)                      #period at end of sentence
-  cleaned_doc =  re.sub(r'\s\&\s',' ',cleaned_doc)                    #& (and)
-  cleaned_doc =  re.sub(r'/',' ',cleaned_doc)                    	  #/
-
-  # punctuation
-  cleaned_doc = cleaned_doc.replace(","," ")
-  cleaned_doc = cleaned_doc.replace(";"," ")
-  cleaned_doc = cleaned_doc.replace(":"," ")
-  cleaned_doc = cleaned_doc.replace("-"," ")
-  cleaned_doc = cleaned_doc.replace("_"," ")
-  cleaned_doc = cleaned_doc.replace("("," ")
-  cleaned_doc = cleaned_doc.replace(")"," ")
-  cleaned_doc = cleaned_doc.replace("*"," ")
-  cleaned_doc = cleaned_doc.replace("?"," ")
-  cleaned_doc = cleaned_doc.replace("!"," ")
+  cleaned_doc =  re.sub(r'\s\&\s',' ',cleaned_doc)                    #& (and with spaces on either side)
+  cleaned_doc =  re.sub(r'/',' ',cleaned_doc)                    	    #/
+  cleaned_doc =  re.sub(r'[^a-zA-Z0-9\&\#\~\.\']',' ', cleaned_doc)   #most punctuation
 
   return cleaned_doc
 
@@ -114,6 +113,7 @@ def keepLongNamesIntact(doc,names):
   for n in names:
     n = n.lower()
     new_name = n.replace(" ","~")
+#     print new_name
     replacedDoc = replacedDoc.replace(n,new_name)
   return replacedDoc
 
