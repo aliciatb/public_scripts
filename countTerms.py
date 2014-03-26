@@ -28,14 +28,18 @@ stop_words = ['a','about','above','across','after','afterwards','again','against
               'twelve','twenty','two','un','under','until','up','upon','us','very','via','was','we','well','were','what',
               'whatever','when','whence','whenever','where','whereafter','whereas','whereby','wherein','whereupon','wherever',
               'whether','which','while','whither','who','whoever','whole','whom','whose','why','will','with','within','without',
-              'would','yet','you','your','yours','yourself','yourselves','nursery']
+              'would','yet','you','your','yours','yourself','yourselves','nursery','5']
 
 # retain the full name since they are meaningful
-fullNames = ['Wells Fargo','H.D. Vest Financial Services','Home Depot','Calloway\'s Nursery','Nelson Capital',
+fullNames = ['Wells Fargo','H.D. Vest Financial Services','H.D. Vest','Home Depot','Calloway\'s Nursery','Nelson Capital','First Clearing Services','Parthenon Capital',
+            'Single Sign-On','multi-factor','Finra ADV form 2 Part B',
             'Texas A&M University','Texas Christian University','University of Washington','John Hopkins University','Princeton University','Bachelor of Arts',
-            'Masters of Business Administration','google books api','Tableau 8.1 Public','Team Foundation Server',
-            'Visual SourceSafe','Visual Studio','Test Driven Development','Pair Programming','Amazon Instant Video',
-            'Kindle Fire','Little Free Library','12th man','2 week sprints','Finra ADV form 2 Part B','Classic ASP']
+            'Masters of Business Administration','12th man','Data Science',
+            'Team Foundation Server','Visual Basic','Visual SourceSafe','Visual Studio','Classic ASP',
+            'Test Driven Development','Pair Programming','Continuous improvement agent','2 week sprints',
+            'Amazon Instant Video','Kindle Fire','streaming video','google books api','Tableau 8.1 Public','Tableau Public',
+            'Little Free Library'
+            ]
 
 def calcFrequency(file):
   """
@@ -62,9 +66,11 @@ def calcFrequency(file):
       exList.append(t)
   
     # sort by count desc
+    ordered = []
     ordered = collections.OrderedDict(sorted(termFrequency.items(), key=lambda t: t[1]))
-#     for key in ordered.keys():
-#       print key, ': ', ordered[key] 
+    for key in reversed(ordered.keys()):
+      print key, ': ', ordered[key]
+ 
     f = open(data_file_path + "output.txt", "w")
     for key in sorted(termFrequency.keys()):
 #    for key in reversed(ordered.keys()):
@@ -86,6 +92,7 @@ def scrub(doc):
   cleaned_doc = doc
   
   # date ranges, dates, phone, e-mail
+  cleaned_doc = re.sub(r'\s\d\d\d\d+-\d\d\d\d','',cleaned_doc)        #date range of 4 digit years with space
   cleaned_doc = re.sub(r'\s-\s\d\d\d\d+-\d\d\d\d','',cleaned_doc)     #date range of 4 digit years
   cleaned_doc = re.sub(r'\d\d\d+-\d\d\d+-\d\d\d\d','',cleaned_doc)    #set of 3 numbers & dash (phone)
   cleaned_doc = re.sub(r'\s\d\d\d\d','',cleaned_doc)                  #4 digit year preceded by space
@@ -94,7 +101,8 @@ def scrub(doc):
   cleaned_doc =  re.sub(r'\.\s',' ',cleaned_doc)                      #period at end of sentence
   cleaned_doc =  re.sub(r'\s\&\s',' ',cleaned_doc)                    #& (and with spaces on either side)
   cleaned_doc =  re.sub(r'/',' ',cleaned_doc)                    	    #/
-  cleaned_doc =  re.sub(r'[^a-zA-Z0-9\&\#\~\.\']',' ', cleaned_doc)   #most punctuation
+  cleaned_doc =  re.sub(r'\s\-\s',' ',cleaned_doc)                    #-
+  cleaned_doc =  re.sub(r'[^a-zA-Z0-9\-\&\#\~\.\']',' ', cleaned_doc)   #most punctuation
 
   return cleaned_doc
 
