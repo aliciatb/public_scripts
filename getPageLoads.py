@@ -45,9 +45,9 @@ def createPageTimeFile(pages,domain):
 def main():
   url = sys.argv[1]
   url = validURL(url)
-  print 'url=', url
+#   print 'url=', url
   domain = getDomain(url)
-  print 'domain=', domain
+#   print 'domain=', domain
   filename = crawl.basicCrawler(url, domain)
   pages = scrubURLs.filterURLs(domain,filename)
   file = createPageTimeFile(pages,domain)
