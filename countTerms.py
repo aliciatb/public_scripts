@@ -34,9 +34,9 @@ stop_words = ['a','about','above','across','after','afterwards','again','against
 fullNames = ['Wells Fargo','H.D. Vest Financial Services','H.D. Vest','Home Depot','Calloway\'s Nursery','Nelson Capital','First Clearing Services','Parthenon Capital',
             'Single Sign-On','multi-factor','Finra ADV form 2 Part B',
             'Texas A&M University','Texas Christian University','University of Washington','John Hopkins University','Princeton University','Bachelor of Arts',
-            'Masters of Business Administration','12th man','Data Science',
+            'Masters of Business Administration','12th man','Data Science','Data Scientist',
             'Team Foundation Server','Visual Basic','Visual SourceSafe','Visual Studio','Classic ASP',
-            'Test Driven Development','Pair Programming','Continuous improvement agent','2 week sprints',
+            'Test Driven Development','Pair Programming','Continuous improvement agent','2 week sprints','Certified Scrum Master',
             'Amazon Instant Video','Kindle Fire','streaming video','google books api','Tableau 8.1 Public','Tableau Public',
             'Little Free Library'
             ]
