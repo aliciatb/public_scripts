@@ -5,7 +5,7 @@ public R, python scripts and excel vba macros free for anyone.
 
 ### Visualize Your Next Job wordclouds
 
-* jobcloud - a ShinyApp that lets you enter a job description and keywords to visualize your next job.
+* ShinyApps that let you enter a job description and keywords to visualize your next job.
   * HTML version: https://alicia.shinyapps.io/jobcloud/
   * Reactive with default UI version: https://alicia.shinyapps.io/jobwordcloud/
   * Nonreactive with default UI version: https://alicia.shinyapps.io/wordcloud/
