@@ -1,0 +1,78 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="word cloud of job descriptions">
+  <meta name="author" content="alicia brown">
+
+  <title>Visualize Your Next Job!</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap theme -->
+  <link href="css/bootstrap-theme.min.css" rel="stylesheet">
+
+  <!-- Custom styles for this template -->
+  <link href="css/theme.css" rel="stylesheet">
+  
+  <script src="http://code.jquery.com/jquery.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  
+  <link rel="stylesheet" type="text/css" href="shared/shiny.css"/> 
+  <link type="text/css" rel="stylesheet" href="css/bootstrap.css"/>
+  
+  <!-- Shiny -->
+  <script src="shared/jquery.js" type="text/javascript"></script>
+  <script src="shared/shiny.js" type="text/javascript"></script>
+</head>
+ 
+<body role="document">
+  <nav class="navbar navbar-default" role="navigation">
+    <h1>Visualize your next Job!</h1>
+  </nav>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-4">
+      <!-- left column -->
+        <p class="bg-primary">Enter the text of a job description that you are interested in below...</p>
+        <textarea id="job" class="form-control" rows="25" cols="40">Data Scientist, Analytics - Seattle 
+Facebook was built to help people connect and share, and over the last decade our tools have played a critical part in changing how people around the world communicate with one another. With over a billion people using the service and more than fifty offices around the globe, a career at Facebook offers countless ways to make an impact in a fast growing organization.
+We’re looking for data scientists to work on our core products with a passion for social media to help drive informed business decisions for Facebook. You will enjoy working with one of the richest data sets in the world, cutting edge technology, and the ability to see your insights turned into real products on a regular basis. The perfect candidate will have a background in computer science or a related technical field, will have experience working with large data stores, and will have some experience building software. You are scrappy, focused on results, a self-starter, and have demonstrated success in using analytics to drive the understanding, progression, and user engagement of a product. This position is located in our Seattle office. 
+Responsibilities 
+Apply your expertise in quantitative analysis, data mining, and the presentation of data to see beyond the numbers and understand how our users interact with our core products
+Partner with Product and Engineering teams to solve problems and identify trends and opportunities
+Inform, influence, support, and execute our product decisions
+Build/maintain reports, dashboards, and metrics to monitor the performance of our products
+Mine massive amounts of data and extract useful product insights
+Manage development of data resources, gather requirements, organize sources, and support product launches
+Requirements 
+3+ years experience doing quantitative analysis preferably for a social web company
+BA/BS in Computer Science, Math, Physics, or other technical field. Advanced degrees preferred but not required
+Fluency in SQL or other programming languages. Some development experience in at least one scripting language (PHP, Python, Perl, etc.)
+Experience with large data sets and distributed computing (Hive/Hadoop) a plus
+Ability to initiate and drive projects to completion with minimal guidance
+The ability to communicate the results of analyses in a clear and effective manner
+Basic understanding of statistical analysis, experience with packages such as R, MATLAB, SPSS, SAS, Stata, etc. preferred
+        </textarea>
+        <br>
+        <p class="bg-primary">Enter any keywords that you hope to find in your next job below...</p>
+        <input id="keywords" class="form-control" type="text" value="Data Science R Python SQL Tableau" class="shiny-bound-input">
+      </div>
+      <div class="col-md-8">
+        <!-- right column -->
+        <h3>Word Cloud of the Job Description</h3>
+        <p class="bg-info">Visual representation of the words where the larger the size of the font, the more frequently that term appeared in the description</p>
+        <div id="jobCloud" class="shiny-plot-output" style="width: 100%; height: 300px"></div>
+        <h3>Frequency of Keywords in the Job Description</h3>
+        <p class="bg-info">Barplot with percentage of match on key words found in the job description.</p>
+        <div id="keywordPlot" class="shiny-plot-output" style="width: 100%; height: 300px"></div> 
+        <div id="table" class="shiny-html-output"></div>
+      </div>
+    </div>
+  </div>
+
+
+</body>
+
+</html>
