@@ -2,7 +2,7 @@ import sys
 import re
 import collections
 
-data_file_path = "../data/"
+data_file_path = "data/"
 
 # words to ignore (source = http://norm.al/2009/04/14/list-of-english-stop-words/)
 stop_words = ['a','about','above','across','after','afterwards','again','against','all','almost','alone','along',
@@ -33,12 +33,12 @@ stop_words = ['a','about','above','across','after','afterwards','again','against
 # retain the full name since they are meaningful
 fullNames = ['Wells Fargo','H.D. Vest Financial Services','H.D. Vest','Home Depot','Calloway\'s Nursery','Nelson Capital','First Clearing Services','Parthenon Capital',
             'Single Sign-On','multi-factor','Finra ADV form 2 Part B',
-            'Texas A&M University','Texas Christian University','University of Washington','John Hopkins University','Princeton University','Bachelor of Arts',
+            'Texas A&M University','Texas Christian University','University of Washington','Johns Hopkins University','Princeton University','Bachelor of Arts',
             'Masters of Business Administration','12th man','Data Science','Data Scientist',
             'Team Foundation Server','Visual Basic','Visual SourceSafe','Visual Studio','Classic ASP',
             'Test Driven Development','Pair Programming','Continuous improvement agent','2 week sprints','Certified Scrum Master',
-            'Amazon Instant Video','Kindle Fire','streaming video','google books api','Tableau 8.1 Public','Tableau Public',
-            'Little Free Library'
+            'Amazon Instant Video','Kindle Fire','streaming video','google books api','Tableau Public',
+            'Little Free Library','R Studio'
             ]
 
 def calcFrequency(file):
