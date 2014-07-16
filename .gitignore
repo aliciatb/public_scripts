@@ -7,3 +7,5 @@
 # Ignore bundler config
 /data
 .txt
+/jobwordcloud/.Rhistory
+/jobwordcloud/.png
