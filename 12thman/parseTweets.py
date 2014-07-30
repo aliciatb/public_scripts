@@ -3,8 +3,8 @@ import urllib
 import json
 import re
 
-aggie = ['a&m','aggie','aggiefootball','aggieland','aggielandticket','aggies','cfb','college station','college','em','gig','houston','hullabaloo','johnny','kyle','manziel','midnight','SECNetwork','whoop','yell']
-seahawk = ['12s','48','beastmode','carroll','century','clink','dangeruss','gohawks','harbaugh','hawk','hawks','legionofboom','link','lob','money','moneylynch','nfc','nfl','pete','pnw','russ','sb48','seagals','seahawk','seahawks','seattle','sherman','super','superbowl','vmac','west','wilson']
+aggie = ['a&m','aggie','aggiefootball','aggieland','aggielandticket','aggies','cfb','college station','college','em','gig','houston','hullabaloo','johnny','kyle','manziel','midnight','SECNetwork','tamu','texas','whoop','yell']
+seahawk = ['12s','48','49ers','beastmode','carroll','century','clink','dangeruss','denver','gohawks','harbaugh','hawk','hawknation','hawks','legionofboom','link','lob','lynch','money','moneylynch','nfc','nfl','nfltrainingcamp','pete','pnw','pst','russ','sb48','seagals','seahawk','seahawks','seattle','sherman','super','superbowl','superbowlchamps','trainingcamp','vmac','west','whynotus','wilson']
 
 def getTeam(aggies, seahawks):
   """
@@ -22,9 +22,9 @@ def getTeamByLocation(location):
   assume that northwest folks prefer the Seahawks
   """
   loc = location.lower()
-  if re.search(r'washington|wa|seattle|north|west', loc):
+  if re.search(r'washington|wa|seattle|north|west|#pnw', loc):
     return "Seahawk"
-  elif re.search(r'college|station|tx|texas|college station|houston', loc):
+  elif re.search(r'college|station|tx|texas|bryan|college station|houston', loc):
     return "Aggie"
   else:
     return "Other"
@@ -36,6 +36,9 @@ def scrubWord(word):
   scrubbed = word.lower()
   scrubbed = re.sub(r'[^a-zA-Z0-9]','', scrubbed)
   # todo: emoticons!
+  # scrubbed = re.sub(r'[^\x00-\x7F]','', scrubbed)
+  # scrubbed = re.sub(r'[^\x20-\x7F]','', scrubbed)
+
   return scrubbed
 
 def parseTweets(tweets):
@@ -48,26 +51,31 @@ def parseTweets(tweets):
     try:
       tweet = json.loads(line)
       if 'text' in tweet:
+        tweet_text = tweet["text"]
         words = {}  # initialize list of words in the tweet
         words = tweet["text"].split()
         aggieTerms = 0
         seahawkTerms = 0
         for w in words:
           scrubbed_word = scrubWord(w)
-          if scrubbed_word in aggie:
+          re_aggie = r'aggie'
+          if scrubbed_word in aggie or re.search(re_aggie, scrubbed_word):
             aggieTerms += 1
-          if scrubbed_word in seahawk:
+          re_seahawk = r'hawk|12s|boom|seattle'
+          if scrubbed_word in seahawk or re.search(re_seahawk, scrubbed_word):
             seahawkTerms += 1
         team = getTeam(aggieTerms, seahawkTerms)
         # location of tweeter
+        location = "none"
         if tweet["user"]["location"] <> "":
           location = tweet["user"]["location"]
           if team == "Other":
             team = getTeamByLocation(location)
+        stamp = "none"
         if tweet["user"]["created_at"] <> "":
           stamp = tweet["user"]["created_at"]
         # add the tweet and fan affiliation
-        fanTweet[tweet["text"]] = team
+        fanTweet[tweet_text] =  location + "|" + stamp + "|" + team
         
     except:
       exList.append(tweet)
@@ -78,10 +86,17 @@ def saveResults(results):
   output to csv for analysis
   """
   f = open("output.csv", "w")
-  f.write('team'+ "," + 'tweet' + "\n")
-  for key in results.keys():
-    f.write(results[key] + "," + key.encode('utf-8') + "\n")
-    print results[key], key
+  f.write('location' + "," + 'stamp' + "," + 'team' + "," + 'tweet' + "\n")
+  for key in results.keys():    
+    text = re.sub(r'[\n]',' ', key)
+    text = re.sub(r'[,]',' ', text)
+    col = results[key].split("|")
+    location = col[0]
+    location = re.sub(r'[,]',' ', location)
+    stamp = col[1]  
+    team = col[2]
+    f.write(location.encode('utf-8') + "," + stamp.encode('utf-8') + "," + team.encode('utf-8') + "," + text.encode('utf-8') + "\n")
+#   print results[key], key
   f.close()
 
 def main():
