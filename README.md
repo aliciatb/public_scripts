@@ -10,6 +10,7 @@ public R, python scripts and excel vba macros free for anyone.
   * Reactive with default UI version: https://alicia.shinyapps.io/jobwordcloud/
   * Nonreactive with default UI version: https://alicia.shinyapps.io/wordcloud/
 
+parseTweets.py processes 12thman tweets to determine if they are Aggie, Seahawk or other fan. Data Viz, https://public.tableausoftware.com/profile/alicia3694#!/vizhome/12thManOnTwitter/Dashboard.
 
 getPageLoads.py accepts url like http://www.amazon.com and will capture all the links on the site and then calculate load time for all of the pages with same domain.
 

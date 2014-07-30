@@ -2,6 +2,7 @@ import sys
 import urllib
 import json
 import re
+from datetime import datetime
 
 aggie = ['a&m','aggie','aggiefootball','aggieland','aggielandticket','aggies','cfb','college station','college','em','gig','houston','hullabaloo','johnny','kyle','manziel','midnight','SECNetwork','tamu','texas','whoop','yell']
 seahawk = ['12s','48','49ers','beastmode','carroll','century','clink','dangeruss','denver','gohawks','harbaugh','hawk','hawknation','hawks','legionofboom','link','lob','lynch','money','moneylynch','nfc','nfl','nfltrainingcamp','pete','pnw','pst','russ','sb48','seagals','seahawk','seahawks','seattle','sherman','super','superbowl','superbowlchamps','trainingcamp','vmac','west','whynotus','wilson']
@@ -38,8 +39,19 @@ def scrubWord(word):
   # todo: emoticons!
   # scrubbed = re.sub(r'[^\x00-\x7F]','', scrubbed)
   # scrubbed = re.sub(r'[^\x20-\x7F]','', scrubbed)
-
   return scrubbed
+
+def scrubDate(dt):
+  # twitter format = Sat Mar 17 18:21:20 +0000 2012
+  # slice dataparts
+  y = dt[-4:]
+  m = dt[4:7]
+  d = dt[8:10]
+  # Mar 30 2014
+  slicedDt = str(m) + " " + str(d) + " " + str(y)
+  result = datetime.strptime(slicedDt, "%b %d %Y")
+  # print result
+  return result
 
 def parseTweets(tweets):
   """
@@ -74,6 +86,7 @@ def parseTweets(tweets):
         stamp = "none"
         if tweet["user"]["created_at"] <> "":
           stamp = tweet["user"]["created_at"]
+          stamp = str(scrubDate(stamp))
         # add the tweet and fan affiliation
         fanTweet[tweet_text] =  location + "|" + stamp + "|" + team
         
