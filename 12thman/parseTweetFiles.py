@@ -6,7 +6,7 @@ import re
 from datetime import datetime
 
 aggie = ['a&m','aggie','aggiefootball','aggieland','aggielandticket','aggies','cfb','college station','college','em','gig','gigem','houston','hullabaloo','johnny','kyle','manziel','midnight','sec','secnetwork','tamu','texas','licensingtamuedu','whoop','yell']
-seahawk = ['12s','48','49ers','beastmode','carroll','century','clink','dangeruss','denver','gohawks','harbaugh','hak','hawk','hawknation','hawks','legionofboom','link','lob','lynch','money','moneylynch','nfc','nfl','nfltrainingcamp','pete','pnw','pst','russ','sb48','seagals','seahawk','seahawks','seattle','sherman','super','superbowl','superbowlchamps','trainingcamp','vmac','west','whynotus','wilson','world']
+seahawk = ['12s','48','49ers','beastmode','broncos','carroll','century','clink','dangeruss','dougbaldwinjr','denver','gohawks','harbaugh','hak','hawk','hawknation','hawks','legionofboom','link','lob','lynch','malcsmitty','money','moneylynch','nfc','nfl','nfltrainingcamp','pete','pnw','pst','russ','rsherman_25','sb48','seagals','seahawk','seahawks','seattle','sherman','sounders','super','superbowl','superbowlchamps','trainingcamp','vmac','west','whynotus','wilson','world']
 
 aggieTweets = []
 seahawkTweets = []
@@ -93,8 +93,13 @@ def parseTweets(tweets):
         if tweet["created_at"] <> "":
           stamp = tweet["created_at"]
           stamp = str(scrubDate(stamp))
-        # add the tweet and fan affiliation
-        fanTweet[tweet_text] =  location + "|" + stamp + "|" + team
+        if tweet["id_str"] <> "":
+          tweet_id = tweet["id_str"]
+        if tweet["user"]["screen_name"] <> "":
+          user_name = tweet["user"]["screen_name"]
+        
+        # add the tweet info and derived fan affiliation
+        fanTweet[tweet_id] =  location + "|" + stamp + "|" + team + "|" + user_name + "|" + tweet_text
         
     except:
       exList.append(tweet)
@@ -105,16 +110,18 @@ def saveResults(results):
   output to csv for analysis
   """
   f = open("output.csv", "w")
-  f.write('location' + "," + 'stamp' + "," + 'team' + "," + 'tweet' + "\n")
+  f.write('location' + "," + 'stamp' + "," + 'team' + "," + 'user_name' + "," + 'tweet_id' + "," + 'tweet' + "\n")
   for key in results.keys():    
-    text = re.sub(r'[\n]',' ', key)
-    text = re.sub(r'[,]',' ', text)
+    id = key
     col = results[key].split("|")
     location = col[0]
     location = re.sub(r'[,]',' ', location)
     stamp = col[1]  
     team = col[2]
-    f.write(location.encode('utf-8') + "," + stamp.encode('utf-8') + "," + team.encode('utf-8') + "," + text.encode('utf-8') + "\n")
+    user_name = col[3]
+    text = re.sub(r'[\n]',' ', col[4])
+    text = re.sub(r'[,]',' ', text)
+    f.write(location.encode('utf-8') + "," + stamp.encode('utf-8') + "," + team.encode('utf-8') + "," + user_name.encode('utf-8') + "," + id.encode('utf-8') + "," + text.encode('utf-8') + "\n")
 #   print results[key], key
   f.close()
   
