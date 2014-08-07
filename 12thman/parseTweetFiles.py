@@ -90,8 +90,8 @@ def parseTweets(tweets):
           if team == "Other":
             team = getTeamByLocation(location)
         stamp = "none"
-        if tweet["user"]["created_at"] <> "":
-          stamp = tweet["user"]["created_at"]
+        if tweet["created_at"] <> "":
+          stamp = tweet["created_at"]
           stamp = str(scrubDate(stamp))
         # add the tweet and fan affiliation
         fanTweet[tweet_text] =  location + "|" + stamp + "|" + team
