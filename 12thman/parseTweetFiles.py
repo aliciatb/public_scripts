@@ -6,7 +6,7 @@ import re
 from datetime import datetime
 
 aggie = ['a&m','aggie','aggiefootball','aggieland','aggielandticket','aggies','cfb','college station','college','em','gig','gigem','houston','hullabaloo','johnny','kyle','manziel','midnight','sec','secnetwork','tamu','texas','licensingtamuedu','whoop','yell']
-seahawk = ['12s','48','49ers','beastmode','broncos','carroll','century','clink','dangeruss','dougbaldwinjr','denver','gohawks','harbaugh','hak','hawk','hawknation','hawks','legionofboom','link','lob','lynch','malcsmitty','money','moneylynch','nfc','nfl','nfltrainingcamp','pete','pnw','pst','russ','rsherman_25','sb48','seagals','seahawk','seahawks','seattle','sherman','sounders','super','superbowl','superbowlchamps','trainingcamp','vmac','west','whynotus','wilson','world']
+seahawk = ['12s','48','49ers','beastmode','blue','bluefriday','broncos','carroll','century','clink','dangeruss','dougbaldwinjr','denver','gohawks','harbaugh','hak','hawk','hawknation','hawks','legionofboom','link','lob','lynch','malcsmitty','money','moneylynch','nfc','nfl','nfltrainingcamp','pete','pnw','pst','russ','rsherman_25','sb48','seagals','seahawk','seahawks','seattle','sherman','sounders','super','superbowl','superbowlchamps','trainingcamp','vmac','west','whynotus','wilson','world']
 
 aggieTweets = []
 seahawkTweets = []
