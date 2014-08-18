@@ -5,8 +5,8 @@ import json
 import re
 from datetime import datetime
 
-aggie = ['a&m','aggie','aggiefootball','aggieland','aggielandticket','aggies','cfb','college station','college','em','gig','gigem','houston','hullabaloo','johnny','kyle','manziel','midnight','sec','secnetwork','tamu','texas','licensingtamuedu','whoop','yell']
-seahawk = ['12s','48','49ers','beastmode','blue','bluefriday','broncos','carroll','century','clink','dangeruss','dougbaldwinjr','denver','gohawks','harbaugh','hak','hawk','hawknation','hawks','legionofboom','link','lob','lynch','malcsmitty','money','moneylynch','nfc','nfl','nfltrainingcamp','pete','pnw','pst','russ','rsherman_25','sb48','seagals','seahawk','seahawks','seattle','sherman','sounders','super','superbowl','superbowlchamps','trainingcamp','vmac','west','whynotus','wilson','world']
+aggie = ['a&m','aggie','aggies','aggiefootball','aggieland','aggielandticket','aggies','cfb','coachsumlin','college station','college','em','gig','gigem','hookemhorns','houston','hullabaloo','johnny','kyle','manziel','midnight','sec','secnetwork','sumlin','tamu','texas','licensingtamuedu','whoop','yell']
+seahawk = ['12s','206','48','49ers','9er','beastmode','blue','bluefriday','broncos','carroll','century','clink','dangeruss','dangerusswilson','dougbaldwinjr','denver','fieldgulls','flag','gohawks','harbaugh','hak','hawk','hawknation','hawks','legionofboom','link','lob','lynch','malcsmitty','money','moneylynch','nfc','nfl','nfltrainingcamp','niner','pete','pnw','pst','russ','rsherman_25','sb48','seagals','seahawk','seahawks','seattle','sherman','sounders','super','superbowl','superbowlchamps','trainingcamp','vmac','west','whynotus','wilson','world']
 
 aggieTweets = []
 seahawkTweets = []
@@ -68,6 +68,7 @@ def parseTweets(tweets):
   for line in tweets:
     try:
       tweet = json.loads(line)
+      #print tweet
       if 'text' in tweet:
         tweet_text = tweet["text"]
         words = {}  # initialize list of words in the tweet
@@ -97,11 +98,11 @@ def parseTweets(tweets):
           tweet_id = tweet["id_str"]
         if tweet["user"]["screen_name"] <> "":
           user_name = tweet["user"]["screen_name"]
-        
         # add the tweet info and derived fan affiliation
         fanTweet[tweet_id] =  location + "|" + stamp + "|" + team + "|" + user_name + "|" + tweet_text
         
-    except:
+    except Exception as e:
+      # print e
       exList.append(tweet)
   return fanTweet
 
@@ -111,6 +112,8 @@ def saveResults(results):
   """
   f = open("output.csv", "w")
   f.write('location' + "," + 'stamp' + "," + 'team' + "," + 'user_name' + "," + 'tweet_id' + "," + 'tweet' + "\n")
+  # track records
+  n = 0
   for key in results.keys():    
     id = key
     col = results[key].split("|")
@@ -123,17 +126,21 @@ def saveResults(results):
     text = re.sub(r'[,]',' ', text)
     f.write(location.encode('utf-8') + "," + stamp.encode('utf-8') + "," + team.encode('utf-8') + "," + user_name.encode('utf-8') + "," + id.encode('utf-8') + "," + text.encode('utf-8') + "\n")
 #   print results[key], key
+    n += 1
   f.close()
+  print "{:,}".format(n),"total tweets!"
   
 def main():
   """
   load the tweets file
   """
   dir = sys.argv[1]
-  all = {} 
+  all = {}
+  print "Processing files..."
   for fn in os.listdir(dir):
-    # match only tweets files
+    # match only tweets files 
     if re.search(r'^tweets', fn):
+      print fn
       tweet_file = open(dir+'/'+fn)
       results = parseTweets(tweet_file)
       for key in results.keys():
