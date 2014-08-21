@@ -5,8 +5,8 @@ import json
 import re
 from datetime import datetime
 
-aggie = ['a&m','aggie','aggies','aggiefootball','aggieland','aggielandticket','aggies','cfb','coachsumlin','college station','college','em','gig','gigem','hookemhorns','houston','hullabaloo','johnny','kyle','manziel','midnight','sec','secnetwork','sumlin','tamu','texas','licensingtamuedu','whoop','yell']
-seahawk = ['12s','206','48','49ers','9er','beastmode','blue','bluefriday','broncos','carroll','century','clink','dangeruss','dangerusswilson','dougbaldwinjr','denver','fieldgulls','flag','gohawks','harbaugh','hak','hawk','hawknation','hawks','legionofboom','link','lob','lynch','malcsmitty','money','moneylynch','nfc','nfl','nfltrainingcamp','niner','pete','pnw','pst','russ','rsherman_25','sb48','seagals','seahawk','seahawks','seattle','sherman','sounders','super','superbowl','superbowlchamps','trainingcamp','vmac','west','whynotus','wilson','world']
+aggie = ['12thmanfoundation','a&m','aggie','aggies','aggiefootball','aggieland','aggielandticket','aggies','caneck','cfb','coachsumlin','college station','college','em','gig','gigem','hookemhorns','houston','hullabaloo','infringement','infringements','jason_cook','jmanziel2','johnny','johnnyfootball','kyle','kylefield','manziel','maroon','midnight','reveille','sec','secfamily','secnetwork','sumlin','tamu','texas','trademark','tm','licensingtamuedu','whoop','yell']
+seahawk = ['12s','206','48','49ers','9er','9ers','beastmode','blue','bluefriday','broncos','carroll','century','centurylink_fld','clink','dangeruss','dangerusswilson','dougbaldwinjr','denver','fieldgulls','flag','gohawks','harbaugh','hak','hawk','hawknation','hawks','legionofboom','link','lob','lombardi','lynch','malcsmitty','money','moneylynch','nfc','nfl','nfltrainingcamp','niner','pete','pnw','pst','russ','rsherman_25','sb48','seagals','seahawk','seahawks','seattle','sherman','sounders','super','superbowl','superbowlchamps','trainingcamp','vmac','west','whiner','whiners','whynotus','wilson','world','wsdot_traffic']
 
 aggieTweets = []
 seahawkTweets = []
@@ -28,9 +28,9 @@ def getTeamByLocation(location):
   assume that northwest folks prefer the Seahawks
   """
   loc = location.lower()
-  if re.search(r'washington|wa|seattle|north|west|#pnw', loc):
+  if re.search(r'206|alaska|washington|wa|seahawk|seattle|north|west|pnw', loc) <> None:
     return "Seahawk"
-  elif re.search(r'college|station|tx|texas|bryan|college station|houston', loc):
+  elif re.search(r'aggie|aggieland|college|station|tx|texas|brazos|bryan|college station|houston', loc) <> None:
     return "Aggie"
   else:
     return "Other"
@@ -77,11 +77,9 @@ def parseTweets(tweets):
         seahawkTerms = 0
         for w in words:
           scrubbed_word = scrubWord(w)
-          re_aggie = r'aggie'
-          if scrubbed_word in aggie or re.search(re_aggie, scrubbed_word):
+          if scrubbed_word in aggie or re.search(r'aggie|btho|tamu', scrubbed_word) <> None:
             aggieTerms += 1
-          re_seahawk = r'hawk|12s|boom|seattle'
-          if scrubbed_word in seahawk or re.search(re_seahawk, scrubbed_word):
+          if scrubbed_word in seahawk or re.search(r'hawk|12s|boom|seattle', scrubbed_word) <> None:
             seahawkTerms += 1
         team = getTeam(aggieTerms, seahawkTerms)
         # location of tweeter
@@ -102,18 +100,32 @@ def parseTweets(tweets):
         fanTweet[tweet_id] =  location + "|" + stamp + "|" + team + "|" + user_name + "|" + tweet_text
         
     except Exception as e:
-      # print e
+      #print e
       exList.append(tweet)
   return fanTweet
+
+def saveTeamTweets(team, tweets):
+  teamTweets = team.lower() + "_tweets.txt"
+  f = open("output/" + teamTweets,"w")
+  i = 0
+  while i < len(tweets):
+    f.write(tweets[i].encode('utf-8'))
+    i +=1
+  f.close()
+  print teamTweets,"created with",i,"tweets"
 
 def saveResults(results):
   """
   output to csv for analysis
   """
-  f = open("output.csv", "w")
+  f = open("output/output.csv", "w")
   f.write('location' + "," + 'stamp' + "," + 'team' + "," + 'user_name' + "," + 'tweet_id' + "," + 'tweet' + "\n")
   # track records
   n = 0
+  # group team tweets for wordcloud
+  aggie_tweets = []
+  seahawk_tweets = []
+  other_tweets = []
   for key in results.keys():    
     id = key
     col = results[key].split("|")
@@ -122,14 +134,24 @@ def saveResults(results):
     stamp = col[1]  
     team = col[2]
     user_name = col[3]
+    # use reg ex to filter out line breaks and commas before creating csv file
     text = re.sub(r'[\n]',' ', col[4])
     text = re.sub(r'[,]',' ', text)
     f.write(location.encode('utf-8') + "," + stamp.encode('utf-8') + "," + team.encode('utf-8') + "," + user_name.encode('utf-8') + "," + id.encode('utf-8') + "," + text.encode('utf-8') + "\n")
 #   print results[key], key
+    if team == "Aggie":
+      aggie_tweets.append(text)
+    if team == "Seahawk":
+      seahawk_tweets.append(text)
+    if team == "Other":
+      other_tweets.append(text)
     n += 1
   f.close()
   print "{:,}".format(n),"total tweets!"
-  
+  saveTeamTweets("Aggie",aggie_tweets)
+  saveTeamTweets("Seahawk",seahawk_tweets)
+  saveTeamTweets("Other",other_tweets)
+
 def main():
   """
   load the tweets file
@@ -140,11 +162,13 @@ def main():
   for fn in os.listdir(dir):
     # match only tweets files 
     if re.search(r'^tweets', fn):
-      print fn
       tweet_file = open(dir+'/'+fn)
+      i = 0
       results = parseTweets(tweet_file)
       for key in results.keys():
+        i +=1
         all[key] = results[key]
+      print fn,"contains",i,"tweets"
   
   saveResults(all)
 
