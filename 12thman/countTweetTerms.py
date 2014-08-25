@@ -18,7 +18,7 @@ stop_words = ['a','about','above','across','after','afterwards','again','against
               'mostly','move','much','must','my','myse','name','namely','neither','never','nevertheless','next','nine','no',
               'nobody','none','noone','nor','not','nothing','now','nowhere','of','off','often','on','once','one','only','onto',
               'or','other','others','otherwise','our','ours','ourselves','out','over','own','part','per','perhaps','please',
-              'put','rather','re','s','same','see','seem','seemed','seeming','seems','serious','several','she','should','show',
+              'put','rather','re','rt','s','same','see','seem','seemed','seeming','seems','serious','several','she','should','show',
               'side','since','sincere','six','sixty','so','some','somehow','someone','something','sometime','sometimes',
               'somewhere','still','such','system','take','ten','than','that','the','their','them','themselves','then','thence',
               'there','thereafter','thereby','therefore','therein','thereupon','these','they','thick','thin','third','this',
@@ -26,7 +26,7 @@ stop_words = ['a','about','above','across','after','afterwards','again','against
               'twelve','twenty','two','un','under','until','up','upon','us','very','via','was','we','well','were','what',
               'whatever','when','whence','whenever','where','whereafter','whereas','whereby','wherein','whereupon','wherever',
               'whether','which','while','whither','who','whoever','whole','whom','whose','why','will','with','within','without',
-              'would','yet','you','your','yours','yourself','yourselves','nursery','5']
+              'would','yet','you','your','yours','yourself','yourselves','nursery','&']
 
 # retain the full name since they are meaningful
 fullNames = ['12th man','blue friday','can''t hold us','century link field','coach sumlin','johnny football','kenny hill','kyle field',
@@ -82,7 +82,7 @@ def scrub(doc):
   cleaned_doc = re.sub(r'--',' ',cleaned_doc)                    #--
   cleaned_doc = re.sub(r'\.\s',' ',cleaned_doc)                  #period at end of sentence
   cleaned_doc = re.sub(r'\"',' ',cleaned_doc)                    #" at end of sentence
-  cleaned_doc = re.sub(r'amp;','',cleaned_doc)                    #" at end of sentence
+  cleaned_doc = re.sub(r'amp;','',cleaned_doc)
   #cleaned_doc = re.sub(r'[^a-zA-Z0-9]','', cleaned_doc)
 
   return cleaned_doc

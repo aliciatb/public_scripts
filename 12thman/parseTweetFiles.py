@@ -5,8 +5,8 @@ import json
 import re
 from datetime import datetime
 
-aggie = ['12thmanfoundation','a&m','aggie','aggies','aggiefootball','aggieland','aggielandticket','aggies','caneck','cfb','coachsumlin','college station','college','em','gig','gigem','hookemhorns','houston','hullabaloo','infringement','infringements','jason_cook','jmanziel2','johnny','johnnyfootball','kyle','kylefield','manziel','maroon','midnight','reveille','sec','secfamily','secnetwork','sumlin','tamu','texas','trademark','tm','licensingtamuedu','whoop','yell']
-seahawk = ['12s','206','48','49ers','9er','9ers','beastmode','blue','bluefriday','broncos','carroll','century','centurylink_fld','clink','dangeruss','dangerusswilson','dougbaldwinjr','denver','fieldgulls','flag','gohawks','harbaugh','hak','hawk','hawknation','hawks','legionofboom','link','lob','lombardi','lynch','malcsmitty','money','moneylynch','nfc','nfl','nfltrainingcamp','niner','pete','pnw','pst','russ','rsherman_25','sb48','seagals','seahawk','seahawks','seattle','sherman','sounders','super','superbowl','superbowlchamps','trainingcamp','vmac','west','whiner','whiners','whynotus','wilson','world','wsdot_traffic']
+aggie = ['12thmanfoundation','a&m','aggie','aggies','aggiefootball','aggieland','aggielandticket','aggievolleyball','caneck','cfb','coachsumlin','college station','college','em','gig','gigem','hookemhorns','houston','hullabaloo','infringement','infringements','jason_cook','jmanziel2','johnny','johnnyfootball','kyle','kylefield','manziel','maroon','midnight','reveille','sec','secfamily','secnetwork','shane_hinckley','sumlin','tamu','texags','texas','trademark','tm','licensingtamuedu','whoop','yell']
+seahawk = ['12s','206','48','49ers','9er','9ers','beastmode','blue','bluefriday','broncos','carroll','century','centurylink_fld','clink','dangeruss','dangerusswilson','dougbaldwinjr','denver','fieldgulls','gohawks','harbaugh','hak','hawk','hawknation','hawks','legionofboom','link','lob','lombardi','lynch','malcsmitty','meowshawnlynch','money','moneylynch','nfc','nfl','nfltrainingcamp','niner','percyharvin','pete','pnw','pst','russ','rsherman_25','sb48','seagals','seahawk','seahawks','seattle','sherman','sounders','super','superbowl','superbowlchamps','tgibf','trainingcamp','vmac','west','whiner','whiners','whynotus','wilson','world','wsdot_traffic']
 
 aggieTweets = []
 seahawkTweets = []
@@ -34,13 +34,28 @@ def getTeamByLocation(location):
     return "Aggie"
   else:
     return "Other"
+    
+def getTeamByUser(user):
+  """
+  super fans include in their twitter handle
+  """
+  tweeter = user.lower()
+  if re.search(r'hawk|blue|seattle',tweeter) <> None:
+    return "Seahawk"
+  elif re.search(r'ags|aggies',tweeter) <> None:
+    return "Aggie"
+  else:
+    return "Other"
 
 def scrubWord(word):
   """
   set all words to lowercase and reg expression to remove non alpha numeric
   """
   scrubbed = word.lower()
+  scrubbed = re.sub(r'@','', scrubbed)
+  scrubbed = re.sub(r'#','', scrubbed)
   scrubbed = re.sub(r'[^a-zA-Z0-9]','', scrubbed)
+  scrubbed = re.sub(r'&amp;','&', scrubbed)
   # todo: emoticons!
   # scrubbed = re.sub(r'[^\x00-\x7F]','', scrubbed)
   # scrubbed = re.sub(r'[^\x20-\x7F]','', scrubbed)
@@ -77,11 +92,17 @@ def parseTweets(tweets):
         seahawkTerms = 0
         for w in words:
           scrubbed_word = scrubWord(w)
-          if scrubbed_word in aggie or re.search(r'aggie|btho|tamu', scrubbed_word) <> None:
+          if scrubbed_word in aggie or re.search(r'aggie|btho|tamu', scrubbed_word):
             aggieTerms += 1
-          if scrubbed_word in seahawk or re.search(r'hawk|12s|boom|seattle', scrubbed_word) <> None:
+          if scrubbed_word in seahawk or re.search(r'hawk|12s|boom|centurylink|seattle|wsdot', scrubbed_word):
             seahawkTerms += 1
         team = getTeam(aggieTerms, seahawkTerms)
+#         if team == "Other" and aggieTerms + seahawkTerms > 0:
+#           print tweet_text
+#           print "aggieterms=",aggieTerms
+#           print "seahawkterms=",seahawkTerms
+#           print "team=",team
+#           print "-------"
         # location of tweeter
         location = "none"
         if tweet["user"]["location"] <> "":
@@ -96,6 +117,9 @@ def parseTweets(tweets):
           tweet_id = tweet["id_str"]
         if tweet["user"]["screen_name"] <> "":
           user_name = tweet["user"]["screen_name"]
+          # see if the username has team affiliation
+          if team == "Other":
+            team = getTeamByUser(user_name)
         # add the tweet info and derived fan affiliation
         fanTweet[tweet_id] =  location + "|" + stamp + "|" + team + "|" + user_name + "|" + tweet_text
         
