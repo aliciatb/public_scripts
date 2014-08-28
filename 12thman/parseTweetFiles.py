@@ -5,8 +5,11 @@ import json
 import re
 from datetime import datetime
 
-aggie = ['12thmanfoundation','a&m','aggie','aggies','aggiefootball','aggieland','aggielandticket','aggievolleyball','caneck','cfb','coachsumlin','college station','college','em','gig','gigem','hookemhorns','houston','hullabaloo','infringement','infringements','jason_cook','jmanziel2','johnny','johnnyfootball','kyle','kylefield','manziel','maroon','midnight','reveille','sec','secfamily','secnetwork','shane_hinckley','sumlin','tamu','texags','texas','trademark','tm','licensingtamuedu','whoop','yell']
-seahawk = ['12s','206','48','49ers','9er','9ers','beastmode','blue','bluefriday','broncos','carroll','century','centurylink_fld','clink','dangeruss','dangerusswilson','dougbaldwinjr','denver','fieldgulls','gohawks','harbaugh','hak','hawk','hawknation','hawks','legionofboom','link','lob','lombardi','lynch','malcsmitty','meowshawnlynch','money','moneylynch','nfc','nfl','nfltrainingcamp','niner','percyharvin','pete','pnw','pst','russ','rsherman_25','sb48','seagals','seahawk','seahawks','seattle','sherman','sounders','super','superbowl','superbowlchamps','tgibf','trainingcamp','vmac','west','whiner','whiners','whynotus','wilson','world','wsdot_traffic']
+# cd ~/public_scripts/12thman
+# python parsetweetfiles.py 'data'
+
+aggie = ['12thmanfoundation','a&m','aggie','aggies','aggiefootball','aggieland','aggielandticket','aggievolleyball','caneck','cfb','coachsumlin','college station','college','gig','gigem','hookemhorns','houston','hullabaloo','infringement','infringements','jason_cook','jmanziel2','johnny','johnnyfootball','kyle','kylefield','maroon','midnight','reveille','sec','secfamily','secnetwork','shane_hinckley','sumlin','tamu','texags','texas','trademark','tm','licensingtamuedu','yell']
+seahawk = ['12s','206','48','49ers','9er','9ers','beastmode','blue','bluefriday','broncos','carroll','century','centurylink_fld','clink','dangeruss','dangerusswilson','dougbaldwinjr','denver','fieldgulls','gohawks','harbaugh','hak','hawk','hawknation','hawks','legionofboom','link','lob','lombardi','lynch','malcsmitty','meowshawnlynch','moneylynch','nfc','nfltrainingcamp','niner','percyharvin','pete','pnw','pst','russ','rsherman_25','sb48','seagals','seahawk','seahawks','seattle','sherman','sounders','super','superbowl','superbowlchamps','tgibf','trainingcamp','vmac','whiner','whiners','whynotus','wilson','world','wsdot_traffic']
 
 aggieTweets = []
 seahawkTweets = []
@@ -175,6 +178,13 @@ def saveResults(results):
   saveTeamTweets("Aggie",aggie_tweets)
   saveTeamTweets("Seahawk",seahawk_tweets)
   saveTeamTweets("Other",other_tweets)
+  # save to JSON file for map reduce
+  all = {}
+  all["aggie"] = aggie_tweets
+  all["seahawk"] = seahawk_tweets
+  all["other"] = other_tweets
+  with open('output/all_tweets.json', 'w') as outfile:
+    json.dump(all, outfile)
 
 def main():
   """

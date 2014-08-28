@@ -1,7 +1,17 @@
-import sys
+import MapReduce
 import re
-import collections
+import sys
 
+"""
+Word Count Example in the Simple Python MapReduce Framework
+cd ~/public_scripts/12thman
+python wordcount.py output/other_tweets.txt
+"""
+
+mr = MapReduce.MapReduce()
+
+# =============================
+# Do not modify above this line
 # words to ignore (source = http://norm.al/2009/04/14/list-of-english-stop-words/)
 stop_words = ['a','about','above','across','after','afterwards','again','against','all','almost','alone','along',
               'already','also','although','always','am','among','amongst','amoungst','amount','an','and','another',
@@ -28,93 +38,33 @@ stop_words = ['a','about','above','across','after','afterwards','again','against
               'whether','which','while','whither','who','whoever','whole','whom','whose','why','will','with','within','without',
               'would','yet','you','your','yours','yourself','yourselves','nursery','&']
 
-# retain the full name since they are meaningful
-fullNames = ['12th man','blue friday','can''t hold us','century link field','coach sumlin','johnny football','kenny hill','kyle field',
-            'fightin texas aggies','fightin'' texas aggies','gig em','go hawks','legion of boom','pete carroll','russell wilson',
-            'super bowl','super bowl 48','texas a&m university','training camp','wrecking crew'
-            ]
 
-def calcFrequency(file,team):
-  """
-  calculate number of occurrences of a term to create word cloud
-  """
-  doc = file.read()
-  doc = doc.lower()
-  doc = keepLongNamesIntact(doc,fullNames)
-  doc = scrub(doc)
-  
-  totalTerms = 0
-  termFrequency = {}
-  
-  terms = doc.split()
-  for t in terms:
-    try:
-      totalTerms += 1
-      if t in termFrequency: 
-        termFrequency[t] += 1
-      else:
-        termFrequency[t] = 1
-    except:
-      exList.append(t)
-  
-    # sort by count desc
-    ordered = []
-    ordered = collections.OrderedDict(sorted(termFrequency.items(), key=lambda t: t[1]))
-#    for key in reversed(ordered.keys()):
-#      print key, ': ', ordered[key]
- 
-    f = open("output/" + team + "_output.txt", "w")
-    for key in sorted(termFrequency.keys()):
-#    for key in reversed(ordered.keys()):
-      if key not in stop_words and re.search(r'http:', key) == None:
-        # revert fullNames while writing to file
-        f.write(key.replace("~"," ") + "\t" + str(termFrequency[key]) + "\n")
-      # print key, float(termFrequency[key])
-    f.close()
-      
-def scrub(doc):
-  """
-  remove non-words like date ranges, punctuation, asterisks
-  todo: retain single quote in Calloway's Nursery properly (regex)
-  """
-  cleaned_doc = doc
-  cleaned_doc = cleaned_doc.lower()
-  cleaned_doc = re.sub(r'--',' ',cleaned_doc)                    #--
-  cleaned_doc = re.sub(r'\.\s',' ',cleaned_doc)                  #period at end of sentence
-  cleaned_doc = re.sub(r'\"',' ',cleaned_doc)                    #" at end of sentence
-  cleaned_doc = re.sub(r'amp;','',cleaned_doc)
-  #cleaned_doc = re.sub(r'[^a-zA-Z0-9]','', cleaned_doc)
+def mapper(record):
+    """
+    maps all data tied to a key
+    """
+    # key: team identifier
+    # value: tweet contents
+    key = "other.txt"
+    words = record.split()
+    for w in words:
+      mr.emit_intermediate(w, 1)
 
-  return cleaned_doc
+def reducer(key, list_of_values):
+    """
+    adds up all the instances of the key as long as word is not in stop_words or is a url
+    """
+    # key: word
+    # value: list of occurrence counts
+    total = 0
+    
+    if key not in stop_words and re.search(r'http:', key) == None:    
+        for v in list_of_values:
+          total += v
+        mr.emit((key, total))
 
-def keepLongNamesIntact(doc,names):
-  """
-  maintain all words for multi-word names, tools, schools
-  """
-  replacedDoc = doc
-  for n in names:
-    n = n.lower()
-    new_name = n.replace(" ","~")
-#     print new_name
-    replacedDoc = replacedDoc.replace(n,new_name)
-  return replacedDoc
-
-def openFile(name):
-  """
-  open the document as read-only, and always note the team for output file name
-  """
-  file = open("output/" + name,'r')
-  return file
-
-def main():
-  """
-  countTerms opens text file, counts words after removing some punctuation and stop words,
-  writes term and frequency to output.txt to ~/data folder
-  """
-  termFile = openFile(sys.argv[1])
-  team = sys.argv[1].replace("_tweets.txt","")
-  calcFrequency(termFile,team)
-  termFile.close()
-
+# Do not modify below this line
+# =============================
 if __name__ == '__main__':
-    main()
+  inputdata = open(sys.argv[1])
+  mr.execute(inputdata, mapper, reducer)
