@@ -11,8 +11,7 @@ fullNames = ['12th man','blue friday','can''t hold us','century link field','coa
             
 def scrub(doc):
     """
-    remove non-words like date ranges, punctuation, asterisks
-    todo: retain single quote in Calloway's Nursery properly (regex)
+    remove some unnecessary punctuation noise
     """
     cleaned_doc = doc
     cleaned_doc = cleaned_doc.lower()
@@ -68,7 +67,7 @@ class MapReduce:
         doc = doc.lower()
         doc = keepLongNamesIntact(doc,fullNames)
         doc = scrub(doc)
-        mapper(doc)
+        mapper(doc, data.name)
         
         for key in self.intermediate:
             reducer(key, self.intermediate[key])

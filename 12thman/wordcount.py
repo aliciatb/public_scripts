@@ -5,7 +5,7 @@ import sys
 """
 Word Count Example in the Simple Python MapReduce Framework
 cd ~/public_scripts/12thman
-python wordcount.py output/other_tweets.txt
+python wordcount.py output/aggie_tweets.txt
 """
 
 mr = MapReduce.MapReduce()
@@ -39,13 +39,12 @@ stop_words = ['a','about','above','across','after','afterwards','again','against
               'would','yet','you','your','yours','yourself','yourselves','nursery','&']
 
 
-def mapper(record):
+def mapper(record, key):
     """
     maps all data tied to a key
     """
     # key: team identifier
     # value: tweet contents
-    key = "other.txt"
     words = record.split()
     for w in words:
       mr.emit_intermediate(w, 1)
