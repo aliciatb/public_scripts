@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+         <meta charset="utf-8">
+          <meta http-equiv="X-UA-Compatible" content="IE=edge">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <meta name="description" content="word cloud of job descriptions">
+          <meta name="author" content="alicia brown">
+          <meta name="credits" content="http://alignedleft.com/work/d3-book,http://bl.ocks.org/mbostock,http://www.d3noob.org/">
+        <title>Best Companies</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <script type="text/javascript" src="../d3/d3.js"></script>
+        <style type="text/css">
+
+            .bar {
+              fill: steelblue;
+            }
+
+            .axis text {
+              font: 10px sans-serif;
+            }
+
+            .axis path,
+            .axis line {
+              fill: none;
+              stroke: #000;
+              shape-rendering: crispEdges;
+            }
+
+            .x.axis path {
+              display: none;
+            }
+        
+        </style>
+    </head>
+    <body>
+        <div class="container-fluid">
+            <div class="page-header">
+              <h1>Best 100 Companies in Seattle Area - 2014 <small>Seattle Business Magazine</small></h1>
+            </div>
+            <p>Data was gathered from <a href="http://seattlebusinessmag.com/sites/seattlebusinessmag.com/files/100%20Best%20Companies%20LIST%202014_0.pdf" target=_blank>list</a> and <a href="http://seattlebusinessmag.com/seattle-event/100-best-companies-work-2014" target=_blank>story</a>.</p>
+            <div class="col-md-8">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <table class="table table-striped">
+                          <thead> </thead>
+                          <tbody></tbody>
+                        </table>
+                        <h3>Company Count by City</h3>
+                        <svg id="barChart" class="chart"></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <svg id="map"></svg>
+            </div>
+        </div>
+        <script type="text/javascript">
+            var dataset;
+            var cityCounts;
+
+            d3.csv("../data/bestcompanies_pretty.csv", function(data) {
+            dataset = data;
+
+            // header
+            var thead = d3.select("thead").selectAll("th")
+            .data(d3.keys(dataset[0]))
+            .enter().append("th").text(function(d){return d});
+
+            // create rows for data
+            var tr = d3.select("tbody").selectAll("tr")
+            //.data(dataset[colNames]).enter().append("tr")
+            .data(dataset).enter().append("tr")
+
+            // cells
+            var td = tr.selectAll("td")
+            .data(function(d){return d3.values(d)})
+            .enter().append("td")
+            .text(function(d) {return d})
+
+            });
+
+            // Map!
+            //Width and height
+            var w = 500;
+            var h = 300;
+
+            //Define map projection
+            var projection = d3.geo.albersUsa()
+                                   .translate([w/2, h/2])
+                                   .scale([500]);
+
+            //Define path generator
+            var path = d3.geo.path()
+                             .projection(projection);
+
+            //Create SVG element
+            var svg = d3.select("svg#map")
+
+            //Load in GeoJSON data
+            d3.json("../data/us-states.json", function(json) {
+                
+                //Bind data and create one path per GeoJSON feature
+                svg.selectAll("path")
+                   .data(json.features)
+                   .enter()
+                   .append("path")
+                   .attr("d", path)
+                   .style("fill", "steelblue");
+        
+            });
+
+            //Load in cities data
+            d3.csv("../data/cityLongLat.csv", function(data) {
+                
+                svg.selectAll("circle")
+                   .data(data)
+                   .enter()
+                   .append("circle")
+                   .attr("cx", function(d) {
+                       return projection([d.longitude, d.latitude])[0];
+                   })
+                   .attr("cy", function(d) {
+                       return projection([d.longitude, d.latitude])[1];
+                   })
+                   .attr("r", 5)
+                   .style("fill", "lime")
+                   .style("opacity", 0.75);
+                
+            });
+
+            // Bar chart for company counts per city
+            var margin = {top: 20, right: 30, bottom: 90, left: 40},
+                width = 900 - margin.left - margin.right,
+                height = 400 - margin.top - margin.bottom;
+
+            var x = d3.scale.ordinal()
+                .rangeRoundBands([0, width], .1);
+
+            var y = d3.scale.linear()
+                .range([height, 0]);
+
+            var xAxis = d3.svg.axis()
+                .scale(x)
+                .orient("bottom");
+
+            var yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("left");
+
+            var chart = d3.select("svg#barChart")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+              .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            d3.csv("../data/cityCompanies.csv", type, function(error, data) {
+              x.domain(data.map(function(d) { return d.City; }));
+              y.domain([0, d3.max(data, function(d) { return d.Companies; })]);
+
+              chart.append("g")
+                  .attr("class", "x axis")
+                  .attr("transform", "translate(0," + height + ")")
+                  .call(xAxis)
+                  .selectAll("text")  
+                    .style("text-anchor", "end")
+                    .attr("dx", "-.8em")
+                    .attr("dy", ".15em")
+                    .attr("transform", function(d) {
+                        return "rotate(-65)" 
+                        });
+
+              chart.append("g")
+                  .attr("class", "y axis")
+                  .call(yAxis);
+
+              chart.selectAll(".bar")
+                .data(data)
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("x", function(d) { return x(d.City); })
+                .attr("y", function(d) { return y(d.Companies); })
+                .attr("height", function(d) { return height - y(d.Companies); })
+                .attr("width", x.rangeBand());
+
+                
+            });
+
+            function type(d) {
+              d.Companies = +d.Companies; // coerce to number
+              return d;
+            }
+                
+        </script>
+    </body>
+    <!-- .text(function(d) {return d["rank"] + " <a href='http://" + d["url"] + "'>" + d["company"] + "</a> " + d["city"]; }); -->
+</html>

@@ -1,0 +1,91 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="word cloud of job descriptions">
+  <meta name="author" content="alicia brown">
+
+  <title>Visualize Your Next Job!</title>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="shared/shiny.css"/> 
+  <script src="shared/jquery.js" type="text/javascript"></script>
+  <script src="shared/shiny.js" type="text/javascript"></script>
+</head>
+ 
+<body role="document">
+  <nav class="navbar navbar-default" role="navigation">
+    <ol class="breadcrumb">
+      <li><a href="index.html">Visualize your next Job!</a></li>
+      <li><a href="about.html">About</a></li>
+    </ol>
+  </nav>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-4">
+      <!-- left column -->
+        <p class="bg-primary">Enter the text of a job description that you are interested in below...</p>
+        <textarea id="job" class="form-control" rows="25" cols="40">Scrum Master / Project Lead
+        
+Nordstrom provides a unique challenge to innovate on a multi-channel experience and use the latest technology to respond to the rapid growth of e-Commerce. We are looking for an individual to join our Information Technologies (IT) E-Commerce team as we intensify the pace of innovation and move toward ambitious future growth through technology solutions. 
+
+At Nordstrom, providing great customer service goes beyond the selling floor. It takes a team of individuals with different talents and skills to continuously improve service and our results. Our InformationTechnologies (IT) division works in partnership with other areas of the Company to develop and support the business systems used throughout Nordstrom. When you join our team, you are welcomed into a family dedicated to creating memorable and rewarding shopping experiences for our customers. 
+
+The ideal project lead will work in partnership with developers, business analysts, project managers and end users to ensure successful delivery, implementation and production support of technologyapplications and processes. 
+
+Responsibilities
+Enhancements to Nordstrom Selling Web applications
+Track and manage progress, scope and hours against project work plans
+Accountable for timely, complete and cost-effective delivery of system development, maintenance and deployment activities
+Facilitate sprint sessions (planning sessions, iterations,retrospectives, demos etc…) remove roadblocks/obstacles to help ensure execution of deliverables Coach and mentor agile team members on agile standards and best practices; ensure that work is consistent across teams
+Regularly interact with IT management, product owners and other leads/scrum masters on project status, priority setting and resource allocations as well as department-wide efforts
+Prepare and present project status reporting to a wide audience
+Develop and maintain work plans, estimates and schedules for multiple concurrent projects
+Prepare and present project status reports
+Identify critical path and manage task dependencies within project timeline
+Provide strong leadership in defining and driving projects, delivering successful results in accordance with scope, budget and time commitments
+Provide hands-on management and leadership to the developers on your projects, driving them to continuously improve the quality and effectiveness of their solutions
+Participate as a member of a strong and diverse management team.
+
+Qualifications
+3 years of experience in a project leadership role for software development projects, planning, priority setting, and driving software development projects, working directly with software developers, managing multiple efforts concurrently
+4 years of progressive experience in IT, preferably software development
+5 years of professive professional experience in building and maintaining software applications with at least 2 years in an Agile (Scrum,KanBan) environment
+3 years of business related experience (retail, eCommerce)
+Strong knowledge of a Scrum theory, practices and rules. Must be able to guide the team to a self organization
+Ability to ensure Agile/Scrum concepts and principals are adhered to and must be able to be the voice of reason and to make tough calls when needed
+Ability to work effectively in a collaborative, multi-project team
+Experience with the use of project management, resource planning and time tracking software throughout the software development process
+Familiarity with iterative methodologies
+Bachelor's degree in information technology or equivalent professional experience preferred
+Experience with Mobile Technologies, E-Commerce or POS experience preferred
+
+Since 1901, Nordstrom has offered a wide variety of quality apparel, shoes and accessories for men, women and children at our stores across the country. We're proud to be named to Fortune™ magazine's list of '100 BestCompanies to Work For.' We believe this recognition comes from our desire to empower our employees to set their sights high and deliver exceptional service to customers. 
+
+As a Nordstrom employee, you can feel confident that your health and well-being are among our highest priorities. We offer a comprehensive, flexible employee benefits package that includes medical/vision and dental coverage, a generous merchandise discount, an employer-matched 401(K) savings and profit sharing plan and much more. 
+
+We are an equal opportunity employer committed to providinga diverse environment. 
+
+The above information has been designed to indicate the general nature and level of work performed by employees within this classification. It is not designed to contain or be interpreted as a comprehensive inventory of all duties, responsibilities and qualifications required of employees assigned to this job.
+        </textarea>
+        <br>
+        <p class="bg-primary">Enter any keywords that you hope to find in your next job below...</p>
+        <input id="keywords" class="form-control" type="text" value="agile team kanban fun leadership improvement" class="shiny-bound-input">
+      </div>
+      <div class="col-md-8">
+        <!-- right column -->
+        <h3>Word Cloud of the Job Description</h3>
+        <p class="bg-info">Visual representation of the words where the larger the size of the font, the more frequently that term appeared in the description</p>
+        <div id="jobCloud" class="shiny-plot-output" style="width: 100%; height: 300px"></div>
+        <h3>Frequency of Keywords in the Job Description</h3>
+        <p class="bg-info">Barplot with percentage of match on key words found in the job description.</p>
+        <div id="keywordPlot" class="shiny-plot-output" style="width: 100%; height: 300px"></div> 
+        <div id="table" class="shiny-html-output"></div>
+      </div>
+    </div>
+  </div>
+
+
+</body>
+
+</html>
