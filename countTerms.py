@@ -14,7 +14,7 @@ stop_words = ['a','about','above','across','after','afterwards','again','against
               'either','eleven','else','elsewhere','empty','enough','etc','even','ever','every','everyone','everything',
               'everywhere','except','few','fifteen','fify','fill','find','fire','first','five','for','former','formerly',
               'forty','found','four','from','front','full','further','get','give','go','had','has','hasnt','have','he',
-              'hence','her','here','hereafter','hereby','herein','hereupon','hers','him','his','how','however','hundred',
+              'hence','her','here','hereafter','hereby','herein','hereupon','hers','him','his','how','however','http','hundred',
               'i','ie','if','in','inc','indeed','interest','into','is','it','its','itse','keep','last','latter','latterly',
               'least','less','ltd','made','many','may','me','meanwhile','might','mill','mine','more','moreover','most',
               'mostly','move','much','must','my','myse','name','namely','neither','never','nevertheless','next','nine','no',
@@ -38,7 +38,7 @@ fullNames = ['Wells Fargo','H.D. Vest Financial Services','H.D. Vest','Home Depo
             'Team Foundation Server','Visual Basic','Visual SourceSafe','Visual Studio','Classic ASP',
             'Test Driven Development','Pair Programming','Continuous improvement agent','2 week sprints','Certified Scrum Master',
             'Amazon Instant Video','Kindle Fire','streaming video','google books api','Tableau Public',
-            'Little Free Library','R Studio'
+            'Little Free Library','Business Intelligence','R Studio'
             ]
 
 def calcFrequency(file):
