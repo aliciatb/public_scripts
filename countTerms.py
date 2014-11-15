@@ -2,7 +2,7 @@ import sys
 import re
 import collections
 
-data_file_path = "data/"
+data_file_path = "~/data/"
 
 # words to ignore (source = http://norm.al/2009/04/14/list-of-english-stop-words/)
 stop_words = ['a','about','above','across','after','afterwards','again','against','all','almost','alone','along',
