@@ -52,8 +52,8 @@ jobCloud <- function(job){
     
     # calculate frequency of term table
     freqTerms <- data.frame(xtabs(formula = ~., data = jobTerms))
-    wordcloud(freqTerms$term,freqTerms$Freq,scale=c(8,.2),min.freq=1,
-              random.order=FALSE,use.r.layout=FALSE, 
+    wordcloud(freqTerms$term,freqTerms$Freq,scale=c(8,.2),min.freq=2,
+              random.order=FALSE, random.color=FALSE, use.r.layout=FALSE, 
               rot.per=.15,colors=pal,vfont=c("serif","plain")
     )
   }
