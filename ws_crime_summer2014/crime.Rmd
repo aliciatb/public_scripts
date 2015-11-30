@@ -1,0 +1,191 @@
+---
+title: "West Seattle Summer Crime Spikes"
+date: "11/29/2015"
+
+output:
+  html_document:
+    theme: readable
+    toc: yes
+    toc_depth: 3
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+  word_document: default
+---
+
+```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
+# url: http://rpubs.com/alicia/wssummer2014
+require(dplyr)
+library(ggmap)
+require(ggplot2)
+require(lubridate)
+require(scales)
+require(xtable)
+require(reshape)
+
+setwd('~/projects/datasci_course_materials/assignment6')
+
+data = read.csv("seattle_incidents_summer_2014.csv", header = TRUE, stringsAsFactors=FALSE)
+zones = read.csv("Seattle_Police_Beats.csv", header = TRUE, stringsAsFactors=FALSE)
+
+# remove incomplete records since they don't provide specific values
+incidents = na.omit(data)
+incidents = cbind(incidents[,],colsplit(incidents$Occurred.Date.or.Date.Range.Start," ",names=c("Date","Time","Period")))
+# convert date part to dat
+incidents$Date = mdy(as.character(incidents$Date))
+# get day of week
+incidents$WeekDay = toupper(wday(incidents$Date, label=TRUE, abbr=FALSE))
+# drop seconds
+incidents$time = sapply(incidents$Time,sub,pattern=':00$',replacement="")
+incidents = cbind(incidents[,],colsplit(incidents$Time,":",names=c("Hour","Minute")))
+# merge contrived category names
+incidents = merge(incidents, zones, by.x='Zone.Beat', by.y='beat')
+
+min_date = paste0(month(min(incidents$Date)),'/',day(min(incidents$Date)),'/2014')
+max_date = paste0(month(max(incidents$Date)),'/',day(max(incidents$Date)),'/2014')
+unique_offense_count = length(unique(incidents$Summarized.Offense.Description))
+unique_zone_count = length(unique(incidents$Zone.Beat))
+unique_precinct_count = length(unique(incidents$precinct))
+
+ws_incidents = filter(incidents, precinct == 'Southwest')
+ws_unique_offense_count = length(unique(ws_incidents$Summarized.Offense.Description))
+ws_unique_zone_count = length(unique(ws_incidents$Zone.Beat))
+```
+
+##Introduction
+For this [assignment](https://github.com/uwescience/datasci_course_materials/blob/master/assignment6/crimeanalytics.md), I have explored the summer time crime data in West Seattle that spans from **`r min_date`** to **`r max_date`**. The full [dataset](https://github.com/uwescience/datasci_course_materials/blob/master/assignment6/seattle_incidents_summer_2014.csv) includes **`r unique_zone_count`** zones that roll up to **`r unique_precinct_count`** precincts. There are **`r unique_offense_count`** unique types of offenses in this dataset. In contrast, the West Seattle data consists of **`r ws_unique_zone_count`** zones and **`r ws_unique_offense_count`** unique types of offenses. I was particularly interested in whether a spike in [police incident reports](https://data.seattle.gov/d/7ais-f98f) intersected notables events like the [West Seattle Summer Fest](http://wsjunction.org/summerfest/), [Morgan Junction Community Festival](http://westseattleblog.com/2014/06/happening-now-morgan-junction-community-festival-2014/), the [4th of July holiday](http://westseattleblog.com/4th-of-july/) or even the [Summer Solstice](http://www.alicesastroinfo.com/2014/06/summer-solstice-sunset-watch-2014/).
+
+###Southwest Precinct Map
+Here is a map[^footnote1] of the 2014 boundaries for West Seattle. The West Seattle Festival occurs in sector W2 at the [Alaska Junction](http://wsjunction.org/). The [Morgan Junction](http://www.morganjunction.org/) is located in sector W3.
+
+![Southwest Precinct Map](http://cloud3.wsbcdn.com/blog/wp-content/uploads/2015/01/oldmap-e1422478010998.jpg)
+
+```{r exploratory, echo=FALSE, message=FALSE, warning=FALSE}
+# summary(incidents)
+incidents_in_zone = 
+  ws_incidents %>%
+    select(Zone.Beat, Summarized.Offense.Description, Month, Date, WeekDay, Time, Period, Latitude, Longitude)
+
+# incidents by offense
+incidents_by_offense = incidents_in_zone %>%
+                       group_by(Summarized.Offense.Description) %>%
+                       summarize(no_incidents =n())
+# sort
+incidents_by_offense = incidents_by_offense[order(incidents_by_offense$no_incidents, decreasing = TRUE),]
+top10_incidents_by_offense = top10_incidents_by_offense = head(incidents_by_offense[order(incidents_by_offense$no_incidents, decreasing = TRUE),],10)
+
+# incidents by day
+incidents_by_day = incidents_in_zone %>%
+                   group_by(Date, WeekDay) %>%
+                   summarize(no_incidents = n())
+
+top10_incidents_by_day = head(incidents_by_day[order(incidents_by_day$no_incidents, decreasing = TRUE),],10)
+```
+
+##Exploratory Analysis
+The first step in the analysis involved plotting the incidents by day for the filtered West Seattle data to see the overall counts of reported incidents during the summer of 2014. The following chart plots the number of incidents reported in West Seattle by Day where the solid green line indicates the Morgan Junction Community Festival, the solid red line indicates the 4th of July and the two dashed blue lines indicate the West Seattle Summer Fest duration. The date of the Summer Solstice, June 24th is denoted by a solid purple line.
+
+###All Incidents
+```{r overviewPlots, echo=FALSE, warning=FALSE, message=FALSE, fig.width=9}
+ggplot(incidents_by_day, aes(x = as.Date(Date), y = no_incidents)) + 
+  geom_line(aes(alpha = 0.6)) +
+  theme_minimal() + 
+  ggtitle('West Seattle Incidents by Day - Summer 2014') + 
+  scale_x_date('Date') +
+  scale_y_continuous('Number of Incidents') +
+  geom_vline(xintercept=as.numeric(as.Date("2014-06-21")), colour="green") + 
+  geom_vline(xintercept=as.numeric(as.Date("2014-06-24")), colour="purple") + 
+  geom_vline(xintercept=as.numeric(as.Date("2014-07-04")), colour="red") + 
+  geom_vline(xintercept=as.numeric(as.Date("2014-07-11")), colour="blue", linetype = "longdash") + 
+  geom_vline(xintercept=as.numeric(as.Date("2014-07-13")), colour="blue", linetype = "longdash") + 
+  theme(
+    axis.text.x = element_text(size = 13),
+    axis.text.y = element_text(size = 13),
+    title = element_text(size = 12),
+    axis.title = element_text(size = 15),
+    axis.ticks = element_blank(),
+    legend.position = 'none')
+```
+
+It appears clear that crime begins to rise prior to the 4th of July and peaks right after the West Seattle Fest concludes on July 14th. However let's dig a little deeper into the period between June 20th and July 24th and focus on day of week, category and location of reported incidents. One thing to note regarding location is that the exact coordinates of criminal events are anonymized in order to protect victims by not identifying precisely where a criminal event took place.
+
+In the plot below all 4 dates and events of interest are shown by vertical black lines.
+
+```{r julyAnalysis, echo=FALSE, message=FALSE, warning=FALSE}
+midsummer = filter(incidents_by_day, Date >= "2014-06-20" & Date <= "2014-07-24")
+```
+
+```{r julyPlots, echo=FALSE, warning=FALSE, message=FALSE, fig.width=9}
+ggplot(data=midsummer, aes(x=as.Date(Date), y=no_incidents, fill = factor(WeekDay))) +
+  geom_bar(stat="identity") +
+  ggtitle('West Seattle Incidents by Day - Midsummer 2014') + 
+  scale_x_date('Date') +
+  scale_y_continuous('Number of Incidents') +
+  scale_fill_discrete(guide = guide_legend(title="Day of Week",reverse=FALSE)) +
+  geom_vline(xintercept=as.numeric(as.Date("2014-06-21")), colour="black") + 
+  geom_vline(xintercept=as.numeric(as.Date("2014-06-24")), colour="black") + 
+  geom_vline(xintercept=as.numeric(as.Date("2014-07-04")), colour="black") + 
+  geom_vline(xintercept=as.numeric(as.Date("2014-07-11")), colour="black", linetype = "longdash") + 
+  geom_vline(xintercept=as.numeric(as.Date("2014-07-13")), colour="black", linetype = "longdash") +
+  theme(
+    axis.text.x = element_text(size = 13),
+    axis.text.y = element_text(size = 13),
+    title = element_text(size = 12),
+    axis.title = element_text(size = 15),
+    axis.ticks = element_blank(),
+    legend.position = 'right')
+```
+
+```{r zoneAnalysis, echo=FALSE, message=FALSE, warning=FALSE}
+incidents_by_zone = incidents_in_zone %>%
+                    group_by(Zone.Beat) %>%
+                    summarize(no_incidents = n())
+incidents_by_zone$no_incidents =  prettyNum(incidents_by_zone$no_incidents,big.mark = ",")
+# sort this
+incidents_by_zone = incidents_by_zone[order(incidents_by_zone$no_incidents, decreasing = TRUE),]
+
+# add more context
+incidents_by_zone_detail = merge(incidents_by_zone, incidents_in_zone, by="Zone.Beat")
+
+# filter for midsummer
+incidents_by_zone_detail = filter(incidents_by_zone_detail, Date >= "2014-06-20" & Date <= "2014-07-24")
+
+# for summary chart - top 10 incidents by zone
+top10_incidents_by_zone = merge(head(incidents_by_zone,10), incidents_in_zone, by = "Zone.Beat")
+```
+
+###Midsummer Incidents by Zone and Category
+The next plot shows the count of midsummer incidents as well as the category of each crime. Here we see that both sectors W2 and W3 actually have the least amounts of crimes of all sectors within West Seattle.
+
+```{r zonePlots, echo=FALSE, warning=FALSE, message=FALSE, fig.width=9}
+ggplot(incidents_by_zone_detail, aes(x = factor(Zone.Beat), fill = factor(Summarized.Offense.Description))) + 
+  geom_bar() +
+  xlab("Zone/Beat") +
+  ylab("Incident Count") +
+  ggtitle("Incidents by Zone/Beats") +
+  scale_y_continuous(labels = comma) +
+  scale_fill_discrete(guide = guide_legend(title="",reverse=TRUE)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+###Frequency of Midsummer Incidents
+This pointmap + heatmap of incidents also shows how the highest frequencey of incidents occurred in sectors F2, F3 and W1. Ideally I would have included the [Seattle Police Department Beats](https://data.seattle.gov/d/nnxn-434b) shape file that is available on the Seattle data portal.
+
+```{r zoneMap, echo=FALSE, warning=FALSE, message=FALSE, fig.width=9}
+#ggmap this!
+map.seattle_city = qmap(location = "west seattle", zoom = 12, source="stamen", maptype="toner-lite")
+# point map
+# map.seattle_city +
+#   geom_point(data=incidents_by_zone_detail, aes(x=Longitude, y=Latitude), color="red", alpha=.7, size=1.4)
+# point + heat map
+map.seattle_city +
+  geom_point(data=incidents_by_zone_detail, mapping=aes(Longitude, Latitude)) + stat_density2d(data=incidents_by_zone_detail, mapping=aes(x=Longitude, y=Latitude, fill=no_incidents), geom="polygon", alpha=0.7) +
+  guides(fill = guide_legend(title = "Incident Count",reverse=TRUE))
+```
+
+## Conclusions
+There is no spike of crime during either festivals or on either the summer solstice or 4th of July holiday. I was also surprised to see that there was no significant increase in crime on Fridays or weekends. In fact, my next analysis should be to understand why spikes occurred on Tuesday July 16th and Wednesday June 24th. I would also like to further categorize the type of crimes to see if there are particular types that may occur more frequently during community events and holidays.
+
+All code and data is available on [github](https://github.com/aliciatb/public_scripts/ws_crime_summer2014).
+
+[^footnote1]: [West Seattle Blog](http://westseattleblog.com/2015/01/see-the-new-map-as-seattle-police-redraws-beat-boundaries/) - current Southwest Precinct map and 2014 one
