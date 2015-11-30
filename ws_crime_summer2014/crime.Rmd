@@ -1,16 +1,15 @@
 ---
-title: "West Seattle Summer Crime Spikes"
-date: "11/29/2015"
-
+title: "Are West Seattle Summer Fests criminal?"
 output:
+  pdf_document:
+    toc: yes
+    toc_depth: 3
   html_document:
     theme: readable
     toc: yes
     toc_depth: 3
-  pdf_document:
-    toc: yes
-    toc_depth: 3
   word_document: default
+date: "11/29/2015"
 ---
 
 ```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
@@ -53,10 +52,10 @@ ws_unique_zone_count = length(unique(ws_incidents$Zone.Beat))
 ```
 
 ##Introduction
-For this [assignment](https://github.com/uwescience/datasci_course_materials/blob/master/assignment6/crimeanalytics.md), I have explored the summer time crime data in West Seattle that spans from **`r min_date`** to **`r max_date`**. The full [dataset](https://github.com/uwescience/datasci_course_materials/blob/master/assignment6/seattle_incidents_summer_2014.csv) includes **`r unique_zone_count`** zones that roll up to **`r unique_precinct_count`** precincts. There are **`r unique_offense_count`** unique types of offenses in this dataset. In contrast, the West Seattle data consists of **`r ws_unique_zone_count`** zones and **`r ws_unique_offense_count`** unique types of offenses. I was particularly interested in whether a spike in [police incident reports](https://data.seattle.gov/d/7ais-f98f) intersected notables events like the [West Seattle Summer Fest](http://wsjunction.org/summerfest/), [Morgan Junction Community Festival](http://westseattleblog.com/2014/06/happening-now-morgan-junction-community-festival-2014/), the [4th of July holiday](http://westseattleblog.com/4th-of-july/) or even the [Summer Solstice](http://www.alicesastroinfo.com/2014/06/summer-solstice-sunset-watch-2014/).
+For this [assignment](https://github.com/uwescience/datasci_course_materials/blob/master/assignment6/crimeanalytics.md), I have explored the summer time crime data in West Seattle that spans from **`r min_date`** to **`r max_date`**. The full [dataset](https://github.com/uwescience/datasci_course_materials/blob/master/assignment6/seattle_incidents_summer_2014.csv) includes **`r unique_zone_count`** zones that roll up to **`r unique_precinct_count`** precincts. There are **`r unique_offense_count`** unique types of offenses in the greater city dataset. In contrast, the West Seattle data consists of **`r ws_unique_zone_count`** zones and **`r ws_unique_offense_count`** unique types of offenses. I was particularly interested in determining whether a spike in [police incident reports](https://data.seattle.gov/d/7ais-f98f) intersected notable events like the [West Seattle Summer Fest](http://wsjunction.org/summerfest/), [Morgan Junction Community Festival](http://westseattleblog.com/2014/06/happening-now-morgan-junction-community-festival-2014/), the [4th of July holiday](http://westseattleblog.com/4th-of-july/) or even the [Summer Solstice](http://www.alicesastroinfo.com/2014/06/summer-solstice-sunset-watch-2014/).
 
 ###Southwest Precinct Map
-Here is a map[^footnote1] of the 2014 boundaries for West Seattle. The West Seattle Festival occurs in sector W2 at the [Alaska Junction](http://wsjunction.org/). The [Morgan Junction](http://www.morganjunction.org/) is located in sector W3.
+Here is a map[^footnote1] of the 2014 boundaries for West Seattle. The West Seattle Festival occurs in sector *W2* at the [Alaska Junction](http://wsjunction.org/). The [Morgan Junction](http://www.morganjunction.org/) is located in sector *W3*.
 
 ![Southwest Precinct Map](http://cloud3.wsbcdn.com/blog/wp-content/uploads/2015/01/oldmap-e1422478010998.jpg)
 
@@ -83,7 +82,7 @@ top10_incidents_by_day = head(incidents_by_day[order(incidents_by_day$no_inciden
 ```
 
 ##Exploratory Analysis
-The first step in the analysis involved plotting the incidents by day for the filtered West Seattle data to see the overall counts of reported incidents during the summer of 2014. The following chart plots the number of incidents reported in West Seattle by Day where the solid green line indicates the Morgan Junction Community Festival, the solid red line indicates the 4th of July and the two dashed blue lines indicate the West Seattle Summer Fest duration. The date of the Summer Solstice, June 24th is denoted by a solid purple line.
+The first step in the analysis involved plotting the incidents by day for the filtered West Seattle data to see the overall counts of reported incidents during the summer of 2014. The following chart plots the number of incidents reported in West Seattle by day where the solid green line indicates the Morgan Junction Community Festival, the solid red line indicates the 4th of July and the two dashed blue lines indicate the West Seattle Summer Fest duration. The date of the Summer Solstice, June 24th is denoted by a solid purple line.
 
 ###All Incidents
 ```{r overviewPlots, echo=FALSE, warning=FALSE, message=FALSE, fig.width=9}
@@ -107,9 +106,9 @@ ggplot(incidents_by_day, aes(x = as.Date(Date), y = no_incidents)) +
     legend.position = 'none')
 ```
 
-It appears clear that crime begins to rise prior to the 4th of July and peaks right after the West Seattle Fest concludes on July 14th. However let's dig a little deeper into the period between June 20th and July 24th and focus on day of week, category and location of reported incidents. One thing to note regarding location is that the exact coordinates of criminal events are anonymized in order to protect victims by not identifying precisely where a criminal event took place.
+It appears clear that crime begins to rise prior to the 4th of July and peaks right after the West Seattle Fest concludes on July 14th. However let's dig a little deeper into the period between June 20th and July 24th and focus on day of week, category and location of reported incidents. One thing to note regarding location is that the exact coordinates of criminal events are anonymized to the block level in order to protect victims by not identifying precisely where a criminal event took place.
 
-In the plot below all 4 dates and events of interest are shown by vertical black lines.
+In the plot below all 4 dates and events of interest are shown by vertical black lines. The particular day of the week is distinguished by color so that it is visually easy to see if there is a higher frequency of crime on weekend days.
 
 ```{r julyAnalysis, echo=FALSE, message=FALSE, warning=FALSE}
 midsummer = filter(incidents_by_day, Date >= "2014-06-20" & Date <= "2014-07-24")
@@ -136,6 +135,8 @@ ggplot(data=midsummer, aes(x=as.Date(Date), y=no_incidents, fill = factor(WeekDa
     legend.position = 'right')
 ```
 
+What becomes immediately obvious is that there are no significant spikes in reported incidents during either festival or holiday. However, for both the festivals and the 4th of July, there is a considerable rise in reports for the following day, so it's possible that those incidents were reported in the early hours of the next day. Or say in the case of property crimes, they may not have been discovered immediately.
+
 ```{r zoneAnalysis, echo=FALSE, message=FALSE, warning=FALSE}
 incidents_by_zone = incidents_in_zone %>%
                     group_by(Zone.Beat) %>%
@@ -155,7 +156,7 @@ top10_incidents_by_zone = merge(head(incidents_by_zone,10), incidents_in_zone, b
 ```
 
 ###Midsummer Incidents by Zone and Category
-The next plot shows the count of midsummer incidents as well as the category of each crime. Here we see that both sectors W2 and W3 actually have the least amounts of crimes of all sectors within West Seattle.
+The next plot shows the count of midsummer incidents as well as the category of each crime.
 
 ```{r zonePlots, echo=FALSE, warning=FALSE, message=FALSE, fig.width=9}
 ggplot(incidents_by_zone_detail, aes(x = factor(Zone.Beat), fill = factor(Summarized.Offense.Description))) + 
@@ -168,11 +169,14 @@ ggplot(incidents_by_zone_detail, aes(x = factor(Zone.Beat), fill = factor(Summar
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
+Here we see that both sectors *W2* and *W3* actually have the least amounts of crimes of all sectors within West Seattle. As these are the 2 sectors that the festivals take place in, it appears that there is no relation to criminal activity, or possibly a positive effect on crime in those areas.
+
+This visualization, while very colorful, doesn't clearly help us understand the proportion of crime types within a sector due to the large number of categories and color gradient changes that are diffcult to discern by the human eye. Without further breaking down the crime categories and possibly filtering out crimes that generally are not associated with celebrations, I have not discovered any insights from examining crime categorization by sector.
+
 ###Frequency of Midsummer Incidents
 This pointmap + heatmap of incidents also shows how the highest frequencey of incidents occurred in sectors F2, F3 and W1. Ideally I would have included the [Seattle Police Department Beats](https://data.seattle.gov/d/nnxn-434b) shape file that is available on the Seattle data portal.
 
 ```{r zoneMap, echo=FALSE, warning=FALSE, message=FALSE, fig.width=9}
-#ggmap this!
 map.seattle_city = qmap(location = "west seattle", zoom = 12, source="stamen", maptype="toner-lite")
 # point map
 # map.seattle_city +
